@@ -15,10 +15,13 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Image(possiblePics[0])
+            Image(possiblePics[currentPicIndex])
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 300)
+        }
+        .onReceive(timer) { _ in
+            changePic()
         }
     }
     
