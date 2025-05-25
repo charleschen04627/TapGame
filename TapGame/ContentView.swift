@@ -12,6 +12,9 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Image(possiblePics[0])
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 300)
         }
     }
 }
