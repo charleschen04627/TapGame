@@ -8,14 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    private let possiblePics = ["apple", "dog", "egg"]
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Image(possiblePics[0])
         }
-        .padding()
     }
 }
 
