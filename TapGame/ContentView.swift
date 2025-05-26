@@ -48,6 +48,7 @@ struct ContentView: View {
                 Spacer()
                 Text("Score: \(score)")
             }
+            .padding(.horizontal)
             Image(possiblePics[currentPicIndex])
                 .resizable()
                 .aspectRatio(contentMode: .fit)
