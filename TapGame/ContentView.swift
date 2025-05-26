@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var difficulty: Difficulty = .easy
     @State private var score: Int = 0
     private let possiblePics = ["apple", "dog", "egg"]
+    @State private var targetIndex: Int = 0
     
     private enum Difficulty: Double {
         case easy = 1
@@ -53,9 +54,26 @@ struct ContentView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 300)
+                .onTapGesture {
+                    timer.upstream.connect().cancel()
+                    checkAnswer()
+                }
+            Text(possiblePics[targetIndex])
+                .font(.system(size: 20, weight: .semibold))
+            Button("Restart") {
+                timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
+            }
+                
         }
         .onReceive(timer) { _ in
             changePic()
+        }
+    }
+    
+    private func checkAnswer() {
+        if currentPicIndex == targetIndex {
+            score += 1
+            targetIndex = Int.random(in: 0..<possiblePics.count)
         }
     }
     
