@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var score: Int = 0
     private let possiblePics = ["apple", "dog", "egg"]
     @State private var targetIndex: Int = 0
+    @State private var isRunning: Bool = true
     
     private enum Difficulty: Double {
         case easy = 1
@@ -35,15 +36,17 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack {
-                Menu("Difficulty \(difficulty.title)") {
-                    Button(Difficulty.easy.title) {
-                        difficulty = .easy
-                    }
-                    Button(Difficulty.medium.title) {
-                        difficulty = .medium
-                    }
-                    Button(Difficulty.hard.title) {
-                        difficulty = .hard
+                if !isRunning {
+                    Menu("Difficulty \(difficulty.title)") {
+                        Button(Difficulty.easy.title) {
+                            difficulty = .easy
+                        }
+                        Button(Difficulty.medium.title) {
+                            difficulty = .medium
+                        }
+                        Button(Difficulty.hard.title) {
+                            difficulty = .hard
+                        }
                     }
                 }
                 Spacer()
@@ -55,15 +58,18 @@ struct ContentView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 300)
                 .onTapGesture {
+                    isRunning = false
                     timer.upstream.connect().cancel()
                     checkAnswer()
                 }
             Text(possiblePics[targetIndex])
                 .font(.system(size: 20, weight: .semibold))
-            Button("Restart") {
-                timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
+            if !isRunning {
+                Button("Restart") {
+                    timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
+                    isRunning = true
+                }
             }
-                
         }
         .onReceive(timer) { _ in
             changePic()
