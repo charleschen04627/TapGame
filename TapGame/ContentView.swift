@@ -16,6 +16,10 @@ struct ContentView: View {
     @State private var targetIndex: Int = 0
     @State private var isRunning: Bool = true
     
+    @State private var alertTitle: String = ""
+    @State private var alertMessage: String = ""
+    @State private var showAlert: Bool = false
+    
     private enum Difficulty: Double {
         case easy = 1
         case medium = 0.5
@@ -58,7 +62,6 @@ struct ContentView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 300)
                 .onTapGesture {
-                    isRunning = false
                     timer.upstream.connect().cancel()
                     checkAnswer()
                 }
@@ -68,19 +71,35 @@ struct ContentView: View {
                 Button("Restart") {
                     timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
                     isRunning = true
+                    showAlert = false
                 }
             }
         }
         .onReceive(timer) { _ in
             changePic()
         }
+        .alert(alertTitle, isPresented: $showAlert) {
+            Button("OK"){
+                
+            }
+        } message: {
+            Text(alertMessage)
+        }
+
     }
     
     private func checkAnswer() {
         if currentPicIndex == targetIndex {
             score += 1
             targetIndex = Int.random(in: 0..<possiblePics.count)
+            alertTitle = "Correct!"
+            alertMessage = "You got it right! Keep going!"
+        } else {
+            alertTitle = "Oops!"
+            alertMessage = "You got it wrong! Try again!"
         }
+        isRunning = false
+        showAlert = true
     }
     
     private func changePic() {
