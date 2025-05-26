@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var currentPicIndex = 0
     @State private var difficulty: Difficulty = .easy
+    @State private var score: Int = 0
     private let possiblePics = ["apple", "dog", "egg"]
     
     private enum Difficulty: Double {
@@ -32,16 +33,20 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Menu("Difficulty \(difficulty.title)") {
-                Button(Difficulty.easy.title) {
-                    difficulty = .easy
+            HStack {
+                Menu("Difficulty \(difficulty.title)") {
+                    Button(Difficulty.easy.title) {
+                        difficulty = .easy
+                    }
+                    Button(Difficulty.medium.title) {
+                        difficulty = .medium
+                    }
+                    Button(Difficulty.hard.title) {
+                        difficulty = .hard
+                    }
                 }
-                Button(Difficulty.medium.title) {
-                    difficulty = .medium
-                }
-                Button(Difficulty.hard.title) {
-                    difficulty = .hard
-                }
+                Spacer()
+                Text("Score: \(score)")
             }
             Image(possiblePics[currentPicIndex])
                 .resizable()
