@@ -10,20 +10,37 @@ import SwiftUI
 struct ContentView: View {
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var currentPicIndex = 0
-    
+    @State private var difficulty: Difficulty = .easy
     private let possiblePics = ["apple", "dog", "egg"]
+    
+    private enum Difficulty: Double {
+        case easy = 1
+        case medium = 0.5
+        case hard = 0.1
+        
+        var title: String {
+            switch self {
+            case .easy:
+                return "Easy"
+            case .medium:
+                return "Medium"
+            case .hard:
+                return "Hard"
+            }
+        }
+    }
     
     var body: some View {
         VStack {
-            Menu("Difficulty") {
-                Button("Easy") {
-                    print("Easy")
+            Menu("Difficulty \(difficulty.title)") {
+                Button(Difficulty.easy.title) {
+                    difficulty = .easy
                 }
-                Button("Medium") {
-                    print("Medium")
+                Button(Difficulty.medium.title) {
+                    difficulty = .medium
                 }
-                Button("Hard") {
-                    print("Hard")
+                Button(Difficulty.hard.title) {
+                    difficulty = .hard
                 }
             }
             Image(possiblePics[currentPicIndex])
