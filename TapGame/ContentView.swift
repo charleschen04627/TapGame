@@ -19,6 +19,7 @@ struct ContentView: View {
     @State private var alertTitle: String = ""
     @State private var alertMessage: String = ""
     @State private var showAlert: Bool = false
+    @State private var animateGradient = false
     
     private enum Difficulty: Double {
         case easy = 1
@@ -38,10 +39,26 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                if !isRunning {
-                    Menu("Difficulty \(difficulty.title)") {
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue, Color.green, Color.red],
+                startPoint: .topLeading, endPoint: .bottomTrailing)
+            .edgesIgnoringSafeArea(.all)
+            .hueRotation(.degrees((animateGradient ? 360 : 0)))
+            .onAppear {
+                withAnimation(.linear(duration: 10).repeatForever(autoreverses: false)) {
+                    animateGradient.toggle()
+                }
+            }
+            
+            VStack(spacing: 10) {
+                Image(systemName: "flag.2.crossed.fill")
+                    .symbolEffect(.wiggle.counterClockwise, options: .repeating)
+                    .font(.system(size: 40, weight: .bold))
+                Text("Reaction")
+                    .font(.system(size: 40, weight: .bold))
+                HStack {
+                    Menu {
                         Button(Difficulty.easy.title) {
                             difficulty = .easy
                         }
@@ -51,41 +68,54 @@ struct ContentView: View {
                         Button(Difficulty.hard.title) {
                             difficulty = .hard
                         }
+                    } label: {
+                        Label(("Difficulty \(difficulty.title)"), systemImage: "arrowtriangle.down.fill")
+                            .symbolEffect(.wiggle.wholeSymbol, options: .repeating)
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(.black)
                     }
+                    .opacity(isRunning ? 0 : 1)
+                    Spacer()
+                    Text("Score: \(score)")
                 }
-                Spacer()
-                Text("Score: \(score)")
+                .padding(.horizontal)
+                Image(possiblePics[currentPicIndex])
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 300, height: 300)
+                    .background(Color.white)
+                    .border(Color.black, width: 5)
+                    .onTapGesture {
+                        if isRunning {
+                            timer.upstream.connect().cancel()
+                            checkAnswer()
+                        }
+                    }
+                Text("Tap \(possiblePics[targetIndex]) !")
+                    .font(.system(size: 20, weight: .semibold))
+                Image(systemName: "arrow.clockwise")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 50, height: 50)
+                    .symbolEffect(.wiggle, options: .repeating)
+                    .onTapGesture {
+                        timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
+                        isRunning = true
+                        showAlert = false
+                    }
+                    .opacity(isRunning ? 0 : 1)
             }
-            .padding(.horizontal)
-            Image(possiblePics[currentPicIndex])
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 300)
-                .onTapGesture {
-                    timer.upstream.connect().cancel()
-                    checkAnswer()
+            .onReceive(timer) { _ in
+                changePic()
+            }
+            .alert(alertTitle, isPresented: $showAlert) {
+                Button("OK"){
+                    
                 }
-            Text(possiblePics[targetIndex])
-                .font(.system(size: 20, weight: .semibold))
-            if !isRunning {
-                Button("Restart") {
-                    timer = Timer.publish(every: difficulty.rawValue, on: .main, in: .common).autoconnect()
-                    isRunning = true
-                    showAlert = false
-                }
+            } message: {
+                Text(alertMessage)
             }
         }
-        .onReceive(timer) { _ in
-            changePic()
-        }
-        .alert(alertTitle, isPresented: $showAlert) {
-            Button("OK"){
-                
-            }
-        } message: {
-            Text(alertMessage)
-        }
-
     }
     
     private func checkAnswer() {
